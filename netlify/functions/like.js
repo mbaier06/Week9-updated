@@ -11,8 +11,18 @@ exports.handler = async function(event) {
   //          in the POST request, and assign to variables. Use
   //          console.log if necessary, to ensure the values are what
   //          you're expecting.
+  console.log(event.body)
+  let post = JSON.parse(event.body)
+  let post.postId
+  let post.userId
+
+  console.log(`the post is ${postId}`)
+  console.log(`the post is ${userId}`)
   // Step 3:  Check in the firestore collection to see if the user has
   //          already liked the post before adding a new like.
+  let querySnapshot = await db.collection('likes').where('postID', '==', postId).where('userId', '==', userId)
+  let numberOfLikes = querySnapshot.size
+  console.log(`number of likes: ${numberOfLikes}`)
   // Step 4:  If there's no likes with the given post id and user id,
   //          add the like to Firestore using the .add() function.
   // Step 5:  Modify the return so that the body is different based on
@@ -20,8 +30,21 @@ exports.handler = async function(event) {
   //          so long as the frontend will be able to identify which occurred.
   //          (optional) Use a relevant status code.
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify({})
+  if (numberOfLikes == 0){
+    await db.collection('likes').add({
+      postId: postId,
+      userId: userId
+    }) 
+     //STep 5
+    return {
+      statusCode: 200,
+      body: JSON.stringify({success: true})
+    } 
+  } else {
+      return {
+        statusCode: 200,
+        body: JSON.stringify({success: false, error: 'user has already liked the post'})
+    }
   }
+
 }
