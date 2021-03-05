@@ -13,14 +13,14 @@ exports.handler = async function(event) {
   //          you're expecting.
   console.log(event.body)
   let post = JSON.parse(event.body)
-  let post.postId
-  let post.userId
+  let postId = post.postId
+  let userId = post.userId
 
   console.log(`the post is ${postId}`)
   console.log(`the post is ${userId}`)
   // Step 3:  Check in the firestore collection to see if the user has
   //          already liked the post before adding a new like.
-  let querySnapshot = await db.collection('likes').where('postID', '==', postId).where('userId', '==', userId)
+  let querySnapshot = await db.collection('likes').where('postId', '==', postId).where('userId', '==', userId).get()
   let numberOfLikes = querySnapshot.size
   console.log(`number of likes: ${numberOfLikes}`)
   // Step 4:  If there's no likes with the given post id and user id,
@@ -42,7 +42,7 @@ exports.handler = async function(event) {
     } 
   } else {
       return {
-        statusCode: 200,
+        statusCode: 403,
         body: JSON.stringify({success: false, error: 'user has already liked the post'})
     }
   }

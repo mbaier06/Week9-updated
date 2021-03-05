@@ -22,12 +22,12 @@ firebase.auth().onAuthStateChanged(async function(user) {
       // Step 1:    POST fetch the create_post endpoint. Send the currently logged-in
       //            user's uid and username, and the image URL from the form in the
       //            POST request's body.
-      let response = await fetch('http://localhost:8888/.netlify/functions/like', {
+      let response = await fetch('/.netlify/functions/create_post', {
         method: 'POST',
         body: JSON.stringify({
-          //what is the post that's getting liked and who is doing it
-          postId: postId,
-          userId: currentUserId
+          userId: user.uid,
+          username: postUsername,
+          imageUrl: postImageUrl
         })
       })
       console.log(response)
@@ -36,6 +36,10 @@ firebase.auth().onAuthStateChanged(async function(user) {
       //            the post, including the newly created post's id and likes. Use this
       //            JSON response object and pass the post's relevant values on to the
       //            renderPost() function below.
+      let json = await response.json()
+      console.log(json)
+      let postId = json.id
+      let numberOfLikes = json.likes
       // Step 7:    (optional) Refactor renderPost() function to accept the entire post
       //            object instead of its individual attributes.
       // Challenge: Add functionality for users to comment on posts.
@@ -113,6 +117,14 @@ async function renderPost(postId, username, imageUrl, likes) {
     //            Send the post's id and the user's id along in the body of the request
     //            so that the backend can create the like for the correct post/user combination.
     //            Be sure to use `JSON.stringify()` for the body object.
+    let response = await fetch('http://localhost:8888/.netlify/functions/like', {
+      method: 'POST',
+      body: JSON.stringify({
+        //what is the post that's getting liked and who is doing it
+        postId: postId,
+        userId: currentUserId
+      })
+    })
     // Step 2-5:  Implement the lambda function in like.js
     // Step 6:    Wrap the code below that visually increments the likes count in conditional logic
     //            so that it doesn't increment unless the backend added the like. Use either
